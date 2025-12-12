@@ -1,0 +1,15 @@
+__pycache__/
+.ipynb_checkpoints/
+Dataset/
+datasets/
+data/
+.venv/
+venv/
+weights/
+*.h5
+*.pt
+*.pth
+*.onnx
+*.zip
+.vscode/
+.env
