@@ -32,21 +32,31 @@ if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
     img = np.array(image)
 
-    # Resize giống train
     img_resized = cv2.resize(img, (IMG_SIZE, IMG_SIZE))
-
     input_tensor = torch.from_numpy(img_resized/255.0).permute(2,0,1).float().unsqueeze(0).to(device)
 
     with torch.no_grad():
         pred = model(input_tensor).cpu().numpy()[0][0]
 
-    mask = (pred > 0.4).astype(np.uint8)  # THRESHOLD 0.4 = dễ thấy hơn
+    mask = (pred > 0.4).astype(np.uint8)
     mask_255 = mask * 255
 
-    # Overlay mask
     overlay = img_resized.copy()
-    overlay[mask == 1] = [255, 0, 0]  # tô màu đỏ
-    
-    st.image(img_resized, caption="Original Image")
-    st.image(mask_255, caption="Predicted Mask (Binary)")
-    st.image(overlay, caption="Overlay Mask on Image")
+    overlay[mask == 1] = [255, 0, 0]
+
+    # 🔘 TOGGLE
+    show_overlay = st.checkbox("🔴 Show tumor overlay", value=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.image(img_resized, caption="Original Image", use_container_width=True)
+
+    with col2:
+        st.image(mask_255, caption="Predicted Mask (Binary)", use_container_width=True)
+
+    with col3:
+        if show_overlay:
+            st.image(overlay, caption="Overlay Mask on Image", use_container_width=True)
+        else:
+            st.image(img_resized, caption="Overlay OFF (Original Image)", use_container_width=True)
